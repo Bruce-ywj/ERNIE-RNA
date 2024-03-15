@@ -1,0 +1,41 @@
+1、通读一下RNA_bert_dl下的代码（可能会调用文件以外的checkpoints）
+2、和照煜师兄对接一下跑相似结构但是不相似序列的RNA数据（先用大模型提取embedding、attnmap特征再tsne降维，再用聚类指标量化（也可以不做量化，只做定性分析））
+3、效仿RNA-FM，整理一下github公开的代码（公开提取ERNIE-RNA embedding的代码以及预测RNA二级结构的代码，pretrain-code中的模型代码也要公开）
+4、在上述看代码的过程当中 觉得有不合理的地方可以修改
+
+
+/data/ywj/RNA_bert_dl/twod_mlm_downstream_task/ss-rna_only_twodout_bigger/ss-rna_bpRNA_checkpoint_dp8
+最好的二级结构预测模型
+
+/data/ywj/RNA_bert_dl/twod_mlm_downstream_task/ss-rna_only_twodout_bigger/predict_ss_rna.py
+二级结构预测
+
+210有改动
+411
+
+delete 删去了一部分，移到了函数中
+
+
+/data/ywj/RNA_bert_dl/Embedding_analysis/extract_embedding.py
+embedding提取
+
+atten_map提取转为了(len(sequences),(attn_len+2), (attn_len+2)), 而非(len(sequences),(attn_len+2)*(attn_len+2))
+
+同类函数合并
+
+删去分布式训练
+
+
+
+
+序列转为oned输入此处
+# sequences = [re.sub(r'[^AaCcGgUuTt]','',ss) for ss in sequences]
+
+删去load_model中的rnafm
+
+/data/ywj/Microsoft/ms_repo/rna-pretraining/src/rna/models
+-》/data/ywj/RNA_bert_dl/pretrain_code/models
+
+
+
+
