@@ -1,0 +1,74 @@
+antlr4-python3-runtime==4.8
+asttokens @ file:///home/conda/feedstock_root/build_artifacts/asttokens_1698341106958/work
+backcall @ file:///home/conda/feedstock_root/build_artifacts/backcall_1592338393461/work
+bitarray==2.9.2
+Bottleneck @ file:///croot/bottleneck_1707864210935/work
+certifi @ file:///croot/certifi_1707229174982/work/certifi
+cffi==1.16.0
+charset-normalizer @ file:///tmp/build/80754af9/charset-normalizer_1630003229654/work
+colorama==0.4.6
+comm @ file:///home/conda/feedstock_root/build_artifacts/comm_1704278392174/work
+Cython==3.0.9
+debugpy @ file:///croot/debugpy_1690905042057/work
+decorator @ file:///home/conda/feedstock_root/build_artifacts/decorator_1641555617451/work
+entrypoints @ file:///home/conda/feedstock_root/build_artifacts/entrypoints_1643888246732/work
+executing @ file:///home/conda/feedstock_root/build_artifacts/executing_1698579936712/work
+fairseq==0.12.2
+hydra-core==1.0.7
+idna @ file:///croot/idna_1666125576474/work
+ipykernel @ file:///home/conda/feedstock_root/build_artifacts/ipykernel_1708996548741/work
+ipython @ file:///home/conda/feedstock_root/build_artifacts/ipython_1680185408135/work
+jedi @ file:///home/conda/feedstock_root/build_artifacts/jedi_1696326070614/work
+joblib @ file:///croot/joblib_1685113087166/work
+jupyter-client @ file:///home/conda/feedstock_root/build_artifacts/jupyter_client_1654730843242/work
+jupyter_core @ file:///home/conda/feedstock_root/build_artifacts/jupyter_core_1710257447442/work
+lxml==5.1.0
+matplotlib-inline @ file:///home/conda/feedstock_root/build_artifacts/matplotlib-inline_1660814786464/work
+mkl-fft==1.3.1
+mkl-random==1.2.2
+mkl-service==2.4.0
+nest_asyncio @ file:///home/conda/feedstock_root/build_artifacts/nest-asyncio_1705850609492/work
+numexpr @ file:///croot/numexpr_1668713893690/work
+numpy @ file:///croot/numpy_and_numpy_base_1682520569166/work
+olefile @ file:///home/conda/feedstock_root/build_artifacts/olefile_1701735466804/work
+omegaconf==2.0.6
+packaging @ file:///home/conda/feedstock_root/build_artifacts/packaging_1710075952259/work
+pandas @ file:///croot/pandas_1709590491089/work/dist/pandas-2.2.1-cp39-cp39-linux_x86_64.whl#sha256=c2fe2574e63acef055e68e1e22d04943804291b7fe3a39b832edfd1b87570954
+parso @ file:///home/conda/feedstock_root/build_artifacts/parso_1638334955874/work
+pexpect @ file:///home/conda/feedstock_root/build_artifacts/pexpect_1706113125309/work
+pickleshare @ file:///home/conda/feedstock_root/build_artifacts/pickleshare_1602536217715/work
+Pillow @ file:///home/conda/feedstock_root/build_artifacts/pillow_1630696601414/work
+platformdirs @ file:///home/conda/feedstock_root/build_artifacts/platformdirs_1706713388748/work
+pooch @ file:///croot/pooch_1695850093751/work
+portalocker==2.8.2
+prompt-toolkit @ file:///home/conda/feedstock_root/build_artifacts/prompt-toolkit_1702399386289/work
+protobuf==4.25.3
+psutil @ file:///opt/conda/conda-bld/psutil_1656431268089/work
+ptyprocess @ file:///home/conda/feedstock_root/build_artifacts/ptyprocess_1609419310487/work/dist/ptyprocess-0.7.0-py2.py3-none-any.whl
+pure-eval @ file:///home/conda/feedstock_root/build_artifacts/pure_eval_1642875951954/work
+pycparser==2.21
+Pygments @ file:///home/conda/feedstock_root/build_artifacts/pygments_1700607939962/work
+python-dateutil @ file:///home/conda/feedstock_root/build_artifacts/python-dateutil_1709299778482/work
+pytz @ file:///croot/pytz_1695131579487/work
+PyYAML==6.0.1
+pyzmq @ file:///croot/pyzmq_1705605076900/work
+regex==2023.12.25
+requests @ file:///croot/requests_1707355572290/work
+sacrebleu==2.4.1
+scikit-learn @ file:///croot/scikit-learn_1694788527225/work
+scipy==1.10.1
+six @ file:///home/conda/feedstock_root/build_artifacts/six_1620240208055/work
+stack-data @ file:///home/conda/feedstock_root/build_artifacts/stack_data_1669632077133/work
+tabulate==0.9.0
+tensorboardX==2.6.2.2
+threadpoolctl @ file:///Users/ktietz/demo/mc3/conda-bld/threadpoolctl_1629802263681/work
+torch==1.10.0
+torchaudio==0.10.0
+torchvision==0.11.0
+tornado @ file:///home/conda/feedstock_root/build_artifacts/tornado_1648827245914/work
+tqdm==4.66.2
+traitlets @ file:///home/conda/feedstock_root/build_artifacts/traitlets_1710254411456/work
+typing_extensions @ file:///home/conda/feedstock_root/build_artifacts/typing_extensions_1708904622550/work
+tzdata @ file:///croot/python-tzdata_1690578112552/work
+urllib3 @ file:///croot/urllib3_1700840488771/work
+wcwidth @ file:///home/conda/feedstock_root/build_artifacts/wcwidth_1704731205417/work
