@@ -187,26 +187,27 @@ def predict(rna_lst, best_model_path=None, mlm_pretrained_model_path=None, arg_o
 
     # Predict structure one by one
     pred_ss_lst = []
-    for seq in rna_lst:
-        X, data_seq = seq_to_rnaindex_and_onehot(seq)
-        one_d, twod_data = prepare_input_for_ernierna(X, len(seq))
-        
-        oned = one_d.to(device)
-        twod_data = twod_data.to(device)
-        data_seq = data_seq.to(device)
-        
-        pred_ss = my_model(oned,twod_data)
-        pair_attn = pred_ss
-        fine_tune_ss = post_process_prediction(pair_attn, data_seq)
-        del pair_attn, pred_ss
-        
-        pred_ss = pretrain_model(oned,twod_data)
-        test_attn = pred_ss[-1][0,5][1:-1,1:-1]
-        pair_attn = (test_attn + test_attn.T) / 2
-        pretrain_ss = post_process_prediction(pair_attn, data_seq)
-        del pair_attn, pred_ss
-        
-        pred_ss_lst.append([fine_tune_ss,pretrain_ss])
+    with torch.no_grad():
+        for seq in rna_lst:
+            X, data_seq = seq_to_rnaindex_and_onehot(seq)
+            one_d, twod_data = prepare_input_for_ernierna(X, len(seq))
+            
+            oned = one_d.to(device)
+            twod_data = twod_data.to(device)
+            data_seq = data_seq.to(device)
+            
+            pred_ss = my_model(oned,twod_data)
+            pair_attn = pred_ss
+            fine_tune_ss = post_process_prediction(pair_attn, data_seq)
+            del pair_attn, pred_ss
+            
+            pred_ss = pretrain_model(oned,twod_data)
+            test_attn = pred_ss[-1][0,5][1:-1,1:-1]
+            pair_attn = (test_attn + test_attn.T) / 2
+            pretrain_ss = post_process_prediction(pair_attn, data_seq)
+            del pair_attn, pred_ss
+            
+            pred_ss_lst.append([fine_tune_ss,pretrain_ss])
         
         
     return pred_ss_lst
@@ -221,7 +222,7 @@ if __name__ == '__main__':
     parser.add_argument("--arg_overrides", default={ "data": './src/dict/' }, help="The path of vocabulary")
     parser.add_argument("--ernie_rna_pretrained_checkpoint", default='./checkpoint/ERNIE-RNA_checkpoint/ERNIE-RNA_pretrain.pt', type=str, help="The path of pre-trained ERNIE-RNA checkpoint")
     parser.add_argument("--ss_rna_checkpoint", default='./checkpoint/ERNIE-RNA_ss_prediction_checkpoint/ERNIER-RNA_ss_prediction.pt', type=str, help="The path of fine-tuned ERNEI-RNA checkpoint")
-    parser.add_argument("--device", default='cpu', type=str, help="device")
+    parser.add_argument("--device", default=0, type=int, help="device")
 
     
 

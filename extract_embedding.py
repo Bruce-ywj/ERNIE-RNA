@@ -69,17 +69,18 @@ def extract_embedding_of_ernierna(sequences, if_cls=True, arg_overrides = { "dat
     else:
         embedding = np.zeros((len(sequences),layer_num,max(rna_len_lst)+2,768))
 
-    for i,(index,seq_len) in enumerate(zip(rna_index,rna_len_lst)):
-        
-        one_d, two_d = prepare_input_for_ernierna(index,seq_len)
-        one_d = one_d.to(device)
-        two_d = two_d.to(device)
-        
-        output = my_model(one_d,two_d,layer_idx=layer_idx).cpu().detach().numpy()
-        if if_cls:
-            embedding[i,:,:] = output[:,0,0,:]
-        else:
-            embedding[i,:,:seq_len+2,:] = output[:,0,:,:]
+    with torch.no_grad():
+        for i,(index,seq_len) in enumerate(zip(rna_index,rna_len_lst)):
+            
+            one_d, two_d = prepare_input_for_ernierna(index,seq_len)
+            one_d = one_d.to(device)
+            two_d = two_d.to(device)
+            
+            output = my_model(one_d,two_d,layer_idx=layer_idx).cpu().detach().numpy()
+            if if_cls:
+                embedding[i,:,:] = output[:,0,0,:]
+            else:
+                embedding[i,:,:seq_len+2,:] = output[:,0,:,:]
         
     return embedding
 
@@ -115,15 +116,15 @@ def extract_attnmap_of_ernierna(sequences, attn_len=None, arg_overrides = { "dat
     else:
         attn_num = 1
     rna_attn_map_embedding = np.zeros((len(sequences),attn_num,(attn_len+2), (attn_len+2)))
-
-    for i,(index,seq_len) in enumerate(zip(rna_index,rna_len_lst)):
-        one_d, two_d = prepare_input_for_ernierna(index,seq_len)
-        one_d = one_d.to(device)
-        two_d = two_d.to(device)
-        
-        output = my_model(one_d,two_d,return_attn_map=True,i=layer_idx,j=head_idx).cpu().detach().numpy()
-        
-        rna_attn_map_embedding[i, :, :(seq_len+2), :(seq_len+2)] = output
+    with torch.no_grad():
+        for i,(index,seq_len) in enumerate(zip(rna_index,rna_len_lst)):
+            one_d, two_d = prepare_input_for_ernierna(index,seq_len)
+            one_d = one_d.to(device)
+            two_d = two_d.to(device)
+            
+            output = my_model(one_d,two_d,return_attn_map=True,i=layer_idx,j=head_idx).cpu().detach().numpy()
+            
+            rna_attn_map_embedding[i, :, :(seq_len+2), :(seq_len+2)] = output
         
     return rna_attn_map_embedding
 
@@ -141,7 +142,7 @@ if __name__ == "__main__":
     parser.add_argument("--layer_idx_emb", default=12, type=int, help="The layer idx of which we extract embedding from, 12 for all layers")
     parser.add_argument("--layer_idx_attn", default=13, type=int, help="The layer idx of which we extract attnmap from, 13 for all layers")
     parser.add_argument("--head_idx_attn", default=12, type=int, help="The head idx of which we extract attnmap from, 12 for all heads")
-    parser.add_argument("--device", default='cpu', type=str, help="device")
+    parser.add_argument("--device", default=0, type=int, help="device")
 
     args = parser.parse_args()
     os.makedirs(args.save_path, exist_ok=True)
