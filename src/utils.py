@@ -304,11 +304,23 @@ class ErnieRNAOnestage(nn.Module):
     def __init__(self, sentence_encoder):
         super().__init__() 
         self.sentence_encoder = sentence_encoder
-    def forward(self,x,twod_input,return_attn_map = False,i=12,j=5):
+    def forward(self,x,twod_input,return_attn_map = False,i=12,j=5,layer_idx=12):
         _,attn_map_lst,out_dict = self.sentence_encoder(x,twod_tokens=twod_input,is_twod=True,extra_only=True, masked_only=False)
-        x = out_dict['inner_states'][-1].transpose(0, 1) # (T, B, C) -> (B, T, C)
-        # x shape like [1, 100, 768]
+        x = torch.stack(out_dict['inner_states'][1:]).transpose(1,2) # (12,T,B,C) -> (12,B,T,C)
+        if layer_idx != 12:
+            x = x[layer_idx,:,:,:].unsqueeze(0)
+
         if return_attn_map:
-            atten1 = F.softmax(attn_map_lst[i][0,j], dim=-1)
-            return atten1
+            L = attn_map_lst[0].shape[2]
+            attnmap = torch.stack(attn_map_lst).transpose(0,1) # (13,B,12,T,T) -> (B,13,12,T,T)
+            # atten1 = F.softmax(attn_map_lst[i][0,j], dim=-1)
+            if i == 13 and j == 12:
+                attnmap = attnmap.view(156,L,L)
+                return attnmap
+            elif i == 13:
+                return attnmap[0,:,j,:,:]
+            elif j == 12:
+                return attnmap[0,i,:,:,:]
+            else:
+                return attnmap[0,i,j,:,:]
         return x
