@@ -174,7 +174,7 @@ def predict(rna_lst, best_model_path=None, mlm_pretrained_model_path=None, arg_o
     # load model
     model_pre = load_pretrained_ernierna(mlm_pretrained_model_path,arg_overrides)
     my_model = ChooseModel(model_pre.encoder)
-    state_dict = torch.load(best_model_path)
+    state_dict = torch.load(best_model_path, map_location=f'cuda:{device}')
     new_state_dict = {k.replace('module.', ''): v for k, v in state_dict.items()}
     my_model.load_state_dict(new_state_dict)
     my_model = my_model.to(device)
