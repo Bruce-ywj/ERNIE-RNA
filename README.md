@@ -10,13 +10,15 @@ You can find more details about **ERNIE-RNA** in our paper, [ERNIE-RNA: An RNA L
 
 <details><summary>Table of contents</summary>
   
-- [Setup Environment](#Setup_Environment)
-- [Pre-trained Models](#Available_Pretrained_Models)
-- [Usage](#usage)
-  - [ERNIE-RNA Embedding Generation](#ERNIE-RNA_Embedding_Generation)
-  - [RNA Secondary Structure Prediction](#ERNIE-RNA_Structure_Prediction)
-- [Citations](#citations)
-- [License](#license)
+- [ERNIE-RNA](#ernie-rna)
+  - [Create Environment with Conda ](#create-environment-with-conda-)
+  - [Access pre-trained models. ](#access-pre-trained-models-)
+  - [Apply ERNIE-RNA with Existing Scripts. ](#apply-ernie-rna-with-existing-scripts-)
+    - [1. Embedding Extraction. ](#1-embedding-extraction-)
+    - [2. Secondary structure prediction. ](#2-secondary-structure-prediction-)
+    - [3. 3D Closeness Prediction ](#3-3d-closeness-prediction-)
+  - [Citations ](#citations-)
+  - [License ](#license-)
 </details>
 
 ## Create Environment with Conda <a name="Setup_Environment"></a>
@@ -53,12 +55,28 @@ Features include cls, tokens, atten_map.
 python predict_ss_rna.py  --seqs_path='./data/test_seqs.fasta' --device='cuda:0'
 ```
 
+
+
 The model path parameters are set by default and do not need to be changed.
 
 The corresponding feature extraction code is inside this file, and the sequence in the file can be modified when used.
 
 This file will output the RNA secondary structure predicted by the two models (fine-tuned model and pre-trained model).
 
+### 3. 3D Closeness Prediction <a name="ERNIE-RNA_3D_Closeness_Prediction"></a>
+
+This section describes how to use ERNIE-RNA to predict RNA 3D closeness maps. This functionality relies on the pre-trained ERNIE-RNA model as a feature extractor and a downstream model head specifically fine-tuned for the 3D closeness task. The recommended downstream model architecture is based on ERNIE-RNA's attention maps.
+
+
+**Usage Example:**
+
+To predict 3D closeness for RNA sequences in a FASTA file and visualize the results:
+
+```bash
+python predict_3d_clossness.py \
+    --input_rna_file ./results/ernie_rna_3d_clossness/example.fasta \
+    --device cuda:0 \
+    --visualize
 
 ## Citations <a name="citations"></a>
 
