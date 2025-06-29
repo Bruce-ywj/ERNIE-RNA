@@ -1,1 +1,6 @@
-https://drive.google.com/drive/folders/1CHtVrcYfgw1sI11Ue5T6JAK20P7an_f3
+bpRNA-1m: https://drive.google.com/file/d/1tvoHc66uQ796mqlbKgJrl-MiRPQGylR5
+bpRNA-new: https://drive.google.com/file/d/1ii6XDkAsfVC--ZN2o3uiOcF5j9TTcvm7
+RIVAS: https://drive.google.com/file/d/1_0skCEMLWPxslnneDskTxgfBwkWlhZBe
+RNA3DB: https://drive.google.com/file/d/1CRuc1mo2wqfKxbv9UTlaXMWBZjuBAxDE
+RNAStralign: https://drive.google.com/file/d/1uyJJ48BG4Kw-D8tdSbH-K85i5qrqvSFm
+​bpRNA-1m_RNAstralign: https://drive.google.com/file/d/1BQbXYXAQYpjm432zwJ_WoQHbivs093tx

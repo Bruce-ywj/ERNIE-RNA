@@ -124,41 +124,70 @@ def seq_to_rnaindex_and_onehot(seq):
     X[0,0] = 0
     return X, data_seq
 
-def rnastructure_from_matrix_to_dotbracket(stru):
-    '''
-    input:
-    stru: numpy matrix, shape like: [l, l], Elements can only be 0 or 1
-    
-    return:
-    fine_tune_ss: string, Indicates the pairing of RNA bases, like: '.(((............))).'
-    '''
-    
-    l = stru.shape[0]
-    pred_ss = ['.'] * l
-    for i in range(l):
-        for j in range(i+1,l):
-            if stru[i][j] == 1:
-                pred_ss[i] = '('
-                pred_ss[j] = ')'   
-    fine_tune_ss = ''.join(pred_ss)
-    return fine_tune_ss
 
-def post_process_prediction(pair_attn, data_seq):
-    '''
-    input:
-    stru: numpy matrix, shape like: [1, 1, l, l], Element as decimal
+def matrix2ct(contact, seq, seq_id, ct_dir, threshold=0.5):
+    """
+    生成CT格式文件，处理多重配对冲突
+    :param contact: 包含配对强度的对称矩阵 (不是二值化的)
+    :param seq: RNA序列字符串
+    :param seq_id: 序列ID
+    :param ct_dir: CT文件输出目录
+    :param threshold: 配对阈值
+    """
+    seq_len = len(seq)
     
-    return:
-    fine_tune_ss: string, Indicates the pairing of RNA bases, like: '.(((............))).'
-    '''
+    # 初始化配对字典
+    pair_dict = {}
+    for i in range(seq_len):
+        pair_dict[i] = -1
     
-    pair_attn = pair_attn.unsqueeze(0)
-    post_pair_attn = post_process(pair_attn, data_seq, 0.01, 0.1, 100, 1.6, True,1.5)
-    map_no_train = (post_pair_attn > 0.5).float().squeeze().cpu().numpy()
-    pretrain_ss = rnastructure_from_matrix_to_dotbracket(map_no_train)
-    return pretrain_ss
+    # 找到所有可能的配对（强度 > threshold）
+    potential_pairs = []
+    for i in range(seq_len):
+        for j in range(i+1, seq_len):
+            if contact[i, j] > threshold:
+                potential_pairs.append((contact[i, j], i, j))
+    
+    # 按配对强度降序排序
+    potential_pairs.sort(reverse=True)
+    
+    # 分配配对，确保每个核苷酸最多只有一个配对
+    conflicts = []
+    for strength, i, j in potential_pairs:
+        if pair_dict[i] == -1 and pair_dict[j] == -1:
+            # 无冲突，直接分配
+            pair_dict[i] = j
+            pair_dict[j] = i
+        else:
+            # 记录冲突情况用于调试
+            conflicts.append((strength, i, j, 
+                            f"i={i} already paired with {pair_dict[i]}" if pair_dict[i] != -1 else "",
+                            f"j={j} already paired with {pair_dict[j]}" if pair_dict[j] != -1 else ""))
+    
+    # 统计信息
+    total_potential = len(potential_pairs)
+    actual_pairs = sum(1 for i in pair_dict.values() if i != -1) // 2
+    
+    if conflicts:
+        logging.info(f"{seq_id}: {total_potential} potential pairs, {actual_pairs} assigned, {len(conflicts)} conflicts resolved")
+    
+    # 确保输出目录存在
+    if not os.path.exists(ct_dir):
+        os.makedirs(ct_dir)
+    ct_file = os.path.join(ct_dir, f"{seq_id}.ct")
+    
+    # 写入CT文件
+    with open(ct_file, "w") as f:
+        f.write(f"{seq_len}\t{seq_id}\n")
+        for i in range(seq_len):
+            prev_idx = i if i > 0 else 0
+            next_idx = i+2 if i < seq_len-1 else 0
+            pair_idx = pair_dict[i]+1 if pair_dict[i] >= 0 else 0
+            f.write(f"{i+1}\t{seq[i]}\t{prev_idx}\t{next_idx}\t{pair_idx}\t{i+1}\n")
+    
+    return ct_file
 
-def predict(rna_lst, best_model_path=None, mlm_pretrained_model_path=None, arg_overrides=None, device='cpu'):
+def post_process_prediction(pair_attn, data_seq, seq, seq_id, ct_dir):
     '''
     input:
     rna_lst: List of rna str
@@ -166,13 +195,42 @@ def predict(rna_lst, best_model_path=None, mlm_pretrained_model_path=None, arg_o
     mlm_pretrained_model_path: The path of the pre-trained model
     arg_overrides: The folder where the character-to-number mapping file resides
     device: The driver used by the model
+    output_dir: CT file output dir
     
     output:
-    pred_ss_lst: List of str including "." "(" ")"
+    ct_files_lst: List of CT file paths
     '''
+    
+    pair_attn = pair_attn.unsqueeze(0)
+    post_pair_attn = post_process(pair_attn, data_seq, 0.01, 0.1, 100, 1.6, True,1.5)
+    # map_no_train = (post_pair_attn > 0.5).float().squeeze().cpu().numpy()
+    # 提取矩阵并转换为numpy数组
+    contact_matrix = post_pair_attn.squeeze().cpu().numpy()
+    # pretrain_ss = rnastructure_from_matrix_to_dotbracket(map_no_train)
+    ct_file = matrix2ct(contact_matrix, seq, seq_id, ct_dir)
+    return ct_file
+
+def predict(rna_lst, seq_names, best_model_path=None, mlm_pretrained_model_path=None, arg_overrides=None, device='cpu', save_path='./results/'):
+    '''
+    input:
+    rna_lst: List of rna str
+    seq_names: List of sequence names from FASTA
+    best_model_path: Best secondary structure prediction model path
+    mlm_pretrained_model_path: The path of the pre-trained model
+    arg_overrides: The folder where the character-to-number mapping file resides
+    device: The driver used by the model
+    save_path: Directory to save CT files
+    
+    output:
+    ct_files_lst: List of generated CT file paths
+    '''
+    # 确保 CT 文件输出目录存在
+    ct_dir = save_path
+    if not os.path.exists(ct_dir):
+        os.makedirs(ct_dir)
 
     # load model
-    model_pre = load_pretrained_ernierna(mlm_pretrained_model_path,arg_overrides)
+    model_pre = load_pretrained_ernierna(mlm_pretrained_model_path, arg_overrides)
     my_model = ChooseModel(model_pre.encoder)
     state_dict = torch.load(best_model_path)
     new_state_dict = {k.replace('module.', ''): v for k, v in state_dict.items()}
@@ -186,9 +244,9 @@ def predict(rna_lst, best_model_path=None, mlm_pretrained_model_path=None, arg_o
     print('Model Loading Done!!!')
 
     # Predict structure one by one
-    pred_ss_lst = []
+    ct_files_lst = []
     with torch.no_grad():
-        for seq in rna_lst:
+        for i, (seq, seq_name) in enumerate(zip(rna_lst, seq_names)):
             X, data_seq = seq_to_rnaindex_and_onehot(seq)
             one_d, twod_data = prepare_input_for_ernierna(X, len(seq))
             
@@ -196,44 +254,68 @@ def predict(rna_lst, best_model_path=None, mlm_pretrained_model_path=None, arg_o
             twod_data = twod_data.to(device)
             data_seq = data_seq.to(device)
             
-            pred_ss = my_model(oned,twod_data)
+            # 微调模型预测
+            pred_ss = my_model(oned, twod_data)
             pair_attn = pred_ss
-            fine_tune_ss = post_process_prediction(pair_attn, data_seq)
+            finetune_ct_file = post_process_prediction(pair_attn, data_seq, seq, f"{seq_name}_finetune_prediction", ct_dir)
+            ct_files_lst.append(finetune_ct_file)
             del pair_attn, pred_ss
             
-            pred_ss = pretrain_model(oned,twod_data)
+            # 零样本预测
+            pred_ss = pretrain_model(oned, twod_data)
             test_attn = pred_ss[-1][0,5][1:-1,1:-1]
             pair_attn = (test_attn + test_attn.T) / 2
-            pretrain_ss = post_process_prediction(pair_attn, data_seq)
+            zeroshot_ct_file = post_process_prediction(pair_attn, data_seq, seq, f"{seq_name}_zeroshot_prediction", ct_dir)
+            ct_files_lst.append(zeroshot_ct_file)
             del pair_attn, pred_ss
             
-            pred_ss_lst.append([fine_tune_ss,pretrain_ss])
+            print(f"Processed sequence {i+1}/{len(rna_lst)}: {seq_name}")
         
-        
-    return pred_ss_lst
+    return ct_files_lst
         
         
 if __name__ == '__main__':
     start = time.time()
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--seqs_path", default='./data/test_seqs.fasta', type=str, help="The path of input seqs")
-    parser.add_argument("--save_path", default='./results/ernie_rna_ss_prediction/test_seqs/', type=str, help="The path of rna ss extracted by ERNIE-RNA")
+    parser.add_argument("--seqs_path", default='./data/ss_prediction/rna3db_testseqs.fasta', type=str, help="The path of input seqs")
+    parser.add_argument("--save_path", default='./results/ernie_rna_ss_prediction/rna3db_test_results/', type=str, help="The path of rna ss extracted by ERNIE-RNA")
     parser.add_argument("--arg_overrides", default={ "data": './src/dict/' }, help="The path of vocabulary")
     parser.add_argument("--ernie_rna_pretrained_checkpoint", default='./checkpoint/ERNIE-RNA_checkpoint/ERNIE-RNA_pretrain.pt', type=str, help="The path of pre-trained ERNIE-RNA checkpoint")
-    parser.add_argument("--ss_rna_checkpoint", default='./checkpoint/ERNIE-RNA_ss_prediction_checkpoint/ERNIER-RNA_ss_prediction.pt', type=str, help="The path of fine-tuned ERNEI-RNA checkpoint")
+    parser.add_argument("--dataset_name", default=None, type=str, help="Dataset name (bpRNA-1m, RNAStralign, RIVAS, RNA3DB, bpRNA-new, bpRNA-1m_RNAstralign). If specified, ss_rna_checkpoint will be auto-set.")
+    parser.add_argument("--ss_rna_checkpoint", default=None, type=str, help="The path of fine-tuned ERNEI-RNA checkpoint")
     parser.add_argument("--device", default=0, type=int, help="device")
 
-    
 
     args = parser.parse_args()
 
+    # 处理 dataset_name 和 ss_rna_checkpoint 参数
+    checkpoint_base_path = './checkpoint/ERNIE-RNA_ss_prediction_checkpoint/'
+    if args.dataset_name is not None:
+        # 根据 dataset_name 设置对应的 checkpoint 路径
+        checkpoint_mapping = {
+            'bpRNA-1m': 'ERNIE-RNA_attn-map_ss_prediction_bpRNA-1m_checkpoint.pt',
+            'RNAStralign': 'ERNIE-RNA_attn-map_ss_prediction_RNAStralign_checkpoint.pt',
+            'RIVAS': 'ERNIE-RNA_attn-map_ss_prediction_RIVAS_checkpoint.pt',
+            'RNA3DB': 'ERNIE-RNA_attn-map_ss_prediction_RNA3DB_checkpoint.pt',
+            'bpRNA-new': 'ERNIE-RNA_attn-map_frozen_ss_prediction_bpRNA-1m_checkpoint.pt',
+            'bpRNA-1m_RNAstralign': 'ERNIE-RNA_attn-map_ss_prediction_bpRNA-1m-all_and_RNAStralign_checkpoint.pt'
+        }
+        
+        if args.dataset_name in checkpoint_mapping:
+            args.ss_rna_checkpoint = checkpoint_base_path + checkpoint_mapping[args.dataset_name]
+        else:
+            raise ValueError(f"Unknown dataset_name: {args.dataset_name}. Available options are: {', '.join(checkpoint_mapping.keys())}")
+    elif args.ss_rna_checkpoint is None:
+        # 如果 dataset_name 为 None 且 ss_rna_checkpoint 也为 None，则报错
+        raise ValueError("Either --dataset_name or --ss_rna_checkpoint must be specified")
+
     seqs_dict = read_fasta_file(args.seqs_path)
     seqs_lst = list(seqs_dict.values())
+    seq_names = list(seqs_dict.keys())
     
-    # Predicting the secondary structure of RNA
-    pres_ss = predict(seqs_lst, args.ss_rna_checkpoint, args.ernie_rna_pretrained_checkpoint, args.arg_overrides, args.device)
-    # print(pres_ss)  # [[fine_tune pre, pretrain pre]]
+    # 预测RNA二级结构并生成CT文件
+    ct_files = predict(seqs_lst, seq_names, args.ss_rna_checkpoint, args.ernie_rna_pretrained_checkpoint, args.arg_overrides, args.device, args.save_path)
     
-    save_rnass_results(args.save_path, list(seqs_dict.keys()), pres_ss)
+    print(f"Generated {len(ct_files)} CT files in {args.save_path}")
     print(f'Done in {time.time()-start}s!')
