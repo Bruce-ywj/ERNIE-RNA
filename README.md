@@ -22,7 +22,7 @@ You can find more details about **ERNIE-RNA** in our paper, [ERNIE-RNA: An RNA L
 
 </details>
 
-## Create Environment with Conda `<a name="Setup_Environment"></a>`
+## Create Environment with Conda 
 
 First, download the repository and create the environment.
 
@@ -38,13 +38,13 @@ Then, activate the "ERNIE-RNA" environment.
 conda activate ERNIE-RNA
 ```
 
-## Access pre-trained models. `<a name="Available_Pretrained_Models"></a>`
+## Access pre-trained models. 
 
 There are two subfolders in the model folder, each folder has a link, and you can download the model in the link to the same directory. Or you can download both models from our [drive](https://drive.google.com/drive/folders/10Yz-sdezhmazzVtrtdBGdzzqK1Z6f-Xv)
 
-## Apply ERNIE-RNA with Existing Scripts. `<a name="Usage"></a>`
+## Apply ERNIE-RNA with Existing Scripts. 
 
-### 1. Embedding Extraction. `<a name="ERNIE-RNA_Embedding_Generation"></a>`
+### 1. Embedding Extraction. 
 
 ```
 python extract_embedding.py --seqs_path='./data/test_seqs.txt' --device='cuda:0'
@@ -58,7 +58,7 @@ In this file, you can use ERNIE-RNA (twod_mlm) for feature extraction.
 
 Features include cls, tokens, atten_map.
 
-### 2. Secondary structure prediction. `<a name="ERNIE-RNA_Structure_Prediction"></a>`
+### 2. Secondary structure prediction. 
 
 ERNIE-RNA provides powerful RNA secondary structure prediction capabilities, supporting model parameters from various training datasets and simultaneously providing both fine-tuned model and zero-shot prediction results.
 
@@ -125,7 +125,7 @@ python predict_ss_rna.py --dataset_name bpRNA-new --device 0 --seqs_path ./data/
 
 ```
 
-### 3. 3D Closeness Prediction `<a name="ERNIE-RNA_3D_Closeness_Prediction"></a>`
+### 3. 3D Closeness Prediction 
 
 This section describes how to use ERNIE-RNA to predict RNA 3D closeness maps. This functionality relies on the pre-trained ERNIE-RNA model as a feature extractor and a downstream model head specifically fine-tuned for the 3D closeness task. The recommended downstream model architecture is based on ERNIE-RNA's attention maps.
 
@@ -140,7 +140,7 @@ python predict_3d_clossness.py \
     --visualize
 ```
 
-## 4. UTR MRL prediction `<a name="UTR_MRL"></a>`
+## 4. UTR MRL prediction 
 
 This section describes how to use ERNIE-RNA to predict mean ribosome loading (MRL) for 5' UTR RNA sequences, a key measure of translation efficiency.
 
@@ -206,8 +206,7 @@ python predict_MRL.py \
     --device 0
 ```
 
-
-## Citations `<a name="citations"></a>`
+## Citations 
 
 If you find the models useful in your research, please cite our work:
 
@@ -218,7 +217,7 @@ Yin W, Zhang Z, He L, et al. ERNIE-RNA: An RNA Language Model with Structure-enh
 We use [fairseq](https://github.com/pytorch/fairseq) sequence modeling framework to train our RNA language modeling.
 We very appreciate this excellent work!
 
-## License `<a name="license"></a>`
+## License
 
 This source code is licensed under the MIT license found in the `LICENSE` file
 in the root directory of this source tree.
