@@ -284,7 +284,7 @@ if __name__ == '__main__':
     parser.add_argument("--ernie_rna_pretrained_checkpoint", default='./checkpoint/ERNIE-RNA_checkpoint/ERNIE-RNA_pretrain.pt', type=str, help="The path of pre-trained ERNIE-RNA checkpoint")
     parser.add_argument("--dataset_name", default=None, type=str, help="Dataset name (bpRNA-1m, RNAStralign, RIVAS, RNA3DB, bpRNA-new, bpRNA-1m_RNAstralign). If specified, ss_rna_checkpoint will be auto-set.")
     parser.add_argument("--ss_rna_checkpoint", default=None, type=str, help="The path of fine-tuned ERNEI-RNA checkpoint")
-    parser.add_argument("--device", default=0, type=int, help="device")
+    parser.add_argument("--device", default=0, help="device integer for GPU ID, or 'cpu'")
 
 
     args = parser.parse_args()

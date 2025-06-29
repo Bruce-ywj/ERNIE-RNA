@@ -74,7 +74,7 @@ python predict_ss_rna.py --dataset_name bpRNA-1m --seqs_path={fasta_dir} --save_
 - `--save_path`: Directory path for output CT files
 - `--dataset_name`: RNA structure finetune dataset name, used to automatically select the corresponding model parameter file
 - `--ss_rna_checkpoint`: Path to the fine-tuned model parameter file (required when not using `--trainset_name`)
-- `--device`: GPU device ID (0, 1, 2...) or CPU (-1)
+- `--device`: GPU device ID (0, 1, 2...) or 'cpu'
 
 #### Available Dataset Parameter Files:
 
