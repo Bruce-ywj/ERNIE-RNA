@@ -121,10 +121,6 @@ python predict_ss_rna.py --dataset_name RNA3DB --device 0 --seqs_path ./data/ss_
 python predict_ss_rna.py --dataset_name bpRNA-new --device 0 --seqs_path ./data/ss_prediction/bpRNA-new_testseqs.fasta --save_path ./results/ernie_rna_ss_prediction/bpRNA-new_test_results/
 ```
 
-```
-
-```
-
 ### 3. 3D Closeness Prediction 
 
 This section describes how to use ERNIE-RNA to predict RNA 3D closeness maps. This functionality relies on the pre-trained ERNIE-RNA model as a feature extractor and a downstream model head specifically fine-tuned for the 3D closeness task. The recommended downstream model architecture is based on ERNIE-RNA's attention maps.
@@ -161,51 +157,6 @@ python predict_MRL.py \
 - `--output_dir`: Directory to save prediction results (default: `./results/ernie_rna_utr_mrl`)
 - `--device`: GPU device ID to use (default: 0, use -1 for CPU)
 
-### Input Format
-
-Input should be in FASTA format with sequences preferably ≤100 nucleotides:
-
-```
->seq1
-AUGCUAGCUAGCUAGCUGCUAGCUAGCUGCUAGCUAGCUAGCUAGCUAGCUAGCUAGCUAGCUAGC
->seq2
-GCUAGCUAGCUGCUAGCUAGCUAGCUAGCUAGCUAGCUAGCUAGCUAGCUAGCUAGCUAGCUAGC
-```
-
-### Output
-
-Results are saved in `prediction.txt` under the output directory, with format:
-
-```
-<sequence>    <predicted_MRL>
-```
-
-Example output:
-
-```
-AUGCUAGCUAGCUAGCUGCUAGCUAGCUGCUAGCUAGCUAGCUAGCUAGCUAGCUAGCUAGCUAGC   5.41
-GCUAGCUAGCUGCUAGCUAGCUAGCUAGCUAGCUAGCUAGCUAGCUAGCUAGCUAGCUAGCUAGC   3.98
-```
-
-### Advanced Usage
-
-For CPU-only prediction:
-
-```bash
-python predict_MRL.py \
-    --data_roots ./data/MRL_data/seqs.fasta \
-    --device -1
-```
-
-For custom output directory:
-
-```bash
-python predict_MRL.py \
-    --data_roots ./data/MRL_data/seqs.fasta \
-    --output_dir ./my_results \
-    --device 0
-```
-
 ## Citations 
 
 If you find the models useful in your research, please cite our work:
@@ -221,7 +172,3 @@ We very appreciate this excellent work!
 
 This source code is licensed under the MIT license found in the `LICENSE` file
 in the root directory of this source tree.
-
-```
-
-```
